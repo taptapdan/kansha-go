@@ -52,3 +52,19 @@ type Pricer interface {
 	Price() int
 	fmt.Stringer
 }
+
+// Limits documented one name at a time, with no comment above the group.
+// (This comment is separated by a blank line, so it doesn't count.)
+
+const (
+	// MaxQty is the most units one shelf holds.
+	MaxQty   = 500
+	MinPrice = 1 // Lowest allowed price in cents.
+)
+
+var (
+	// DefaultCategory is used when none is given.
+	DefaultCategory = Pantry
+	Currency        = "USD"
+	Locale          = "en-US"
+)

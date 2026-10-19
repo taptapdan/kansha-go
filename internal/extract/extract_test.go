@@ -63,6 +63,17 @@ func TestLoadShop(t *testing.T) {
 	if len(total.Examples) != 1 || total.Examples[0].Output != "450\n" || strings.Contains(total.Examples[0].Code, "Output") {
 		t.Errorf("example = %+v", total.Examples)
 	}
+	undocumented := map[string][]string{}
+	for _, v := range append(inv.Consts, inv.Vars...) {
+		undocumented[v.Names[0]] = v.Undocumented
+	}
+	if got := undocumented["MaxQty"]; len(got) != 0 {
+		t.Errorf("MaxQty group: undocumented = %v, want none (line and trailing comments count)", got)
+	}
+	if got := strings.Join(undocumented["DefaultCategory"], ","); got != "Currency,Locale" {
+		t.Errorf("DefaultCategory group: undocumented = %q, want Currency,Locale", got)
+	}
+
 	if len(inv.Bugs) != 1 {
 		t.Errorf("bugs = %v", inv.Bugs)
 	}

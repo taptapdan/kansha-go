@@ -25,6 +25,12 @@ const (
 type Status struct {
 	Problem string // "", Missing or Style
 	Suggest string // the comment we'd expect it to start with, e.g. "// Restock ..."
+
+	// For const and var groups with more than one name: the names that have
+	// no comment of their own, and the group's size.
+	Group        bool
+	Undocumented []string
+	GroupSize    int
 }
 
 // OK reports whether there is nothing to flag.
@@ -80,6 +86,9 @@ func Analyze(m *extract.Module) *Report {
 			it := Item{Pkg: p, Kind: kind, Name: name, Anchor: anchor, Pos: pos, Status: s}
 			if s.Problem == Missing {
 				it.Message = fmt.Sprintf("%s %s has no doc comment", kind, name)
+				if s.Group {
+					it.Message = fmt.Sprintf("%s group: %s %s no comment", kind, strings.Join(s.Undocumented, ", "), hasHave(len(s.Undocumented)))
+				}
 				missing = append(missing, it)
 			} else {
 				st.Hints++
@@ -145,13 +154,22 @@ func CheckPackage(p *extract.Package) Status {
 	return Status{}
 }
 
-// CheckValue checks a const or var group. Groups only need a comment; there
-// is no naming convention for them.
+// CheckValue checks a const or var declaration. It is documented if it has a
+// comment above it (for a group, above "const (") or if every name in it has
+// a comment of its own, above its line or at the end of it. There is no naming
+// convention for these, so there are no style tips.
 func CheckValue(v *extract.Value) Status {
-	if strings.TrimSpace(v.Doc) == "" {
-		return Status{Problem: Missing, Suggest: "// " + v.Names[0] + " ..."}
+	if strings.TrimSpace(v.Doc) != "" || len(v.Undocumented) == 0 {
+		return Status{}
 	}
-	return Status{}
+	s := Status{Problem: Missing, Suggest: "// " + v.Names[0] + " ..."}
+	if len(v.Names) > 1 {
+		s.Group = true
+		s.Undocumented = v.Undocumented
+		s.GroupSize = len(v.Names)
+		s.Suggest = "// Describe what these have in common."
+	}
+	return s
 }
 
 // Check checks the doc comment of a func, method or type named name.
@@ -191,4 +209,11 @@ func commandName(p *extract.Package) string {
 		return "Command"
 	}
 	return strings.ToUpper(name[:1]) + name[1:]
+}
+
+func hasHave(n int) string {
+	if n == 1 {
+		return "has"
+	}
+	return "have"
 }

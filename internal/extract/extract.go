@@ -181,12 +181,24 @@ func (x *extractor) pos(p token.Pos) Pos {
 func (x *extractor) values(vals []*doc.Value) []*Value {
 	var out []*Value
 	for _, v := range vals {
-		out = append(out, &Value{
+		val := &Value{
 			Names: v.Names,
 			Doc:   v.Doc,
 			Code:  x.genDecl(v.Decl),
 			Pos:   x.pos(v.Decl.Pos()),
-		})
+		}
+		for _, spec := range v.Decl.Specs {
+			vs, ok := spec.(*ast.ValueSpec)
+			if !ok || vs.Doc != nil || vs.Comment != nil {
+				continue
+			}
+			for _, n := range vs.Names {
+				if n.Name != "_" {
+					val.Undocumented = append(val.Undocumented, n.Name)
+				}
+			}
+		}
+		out = append(out, val)
 	}
 	return out
 }

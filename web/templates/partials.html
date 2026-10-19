@@ -53,9 +53,17 @@
   <div class="flex items-start gap-3">
     <svg class="mt-0.5 shrink-0 text-warn" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 2 17h16L10 3Z"/><path d="M10 8v4M10 14.5v.5"/></svg>
     <div class="min-w-0">
+      {{if .Status.Group}}
+      <p class="font-medium text-warn">{{if eq (len .Status.Undocumented) .Status.GroupSize}}This {{.Kind}} group has no doc comment{{else}}{{len .Status.Undocumented}} of {{.Status.GroupSize}} names in this {{.Kind}} group have no comment{{end}}</p>
+      <p class="mt-1 text-muted">Missing: {{range $i, $n := .Status.Undocumented}}{{if $i}}, {{end}}<code class="inline-code">{{$n}}</code>{{end}}.</p>
+      <p class="mt-1 text-muted">Either add one comment above <code class="inline-code">{{.Kind}} (</code> in <code class="inline-code">{{.File}}</code>{{if .Line}} (line {{.Line}}){{end}} that describes the whole group, or give each name its own comment.</p>
+      <pre class="code mt-2 rounded-md border border-line px-3 py-2"><span class="c1">{{.Status.Suggest}}</span>
+<span class="k">{{.Kind}}</span> (</pre>
+      {{else}}
       <p class="font-medium text-warn">{{.Name}} has no doc comment</p>
       <p class="mt-1 text-muted">Add a comment on the line directly above it in <code class="inline-code">{{.File}}</code>{{if .Line}} (line {{.Line}}){{end}}. By Go convention it starts with the name:</p>
       <pre class="code mt-2 rounded-md border border-line px-3 py-2"><span class="c1">{{.Status.Suggest}}</span></pre>
+      {{end}}
     </div>
   </div>
 </div>

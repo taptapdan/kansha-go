@@ -50,6 +50,11 @@ type Value struct {
 	Doc   string
 	Code  string // the declaration as Go source
 	Pos   Pos
+
+	// Undocumented lists the names that have no comment of their own: no
+	// comment above their line and none at the end of it. A group can still
+	// be documented by a comment above "const (" (Doc).
+	Undocumented []string
 }
 
 // Func is a function or method.
