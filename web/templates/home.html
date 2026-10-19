@@ -1,0 +1,30 @@
+{{define "content"}}
+{{$page := .}}
+{{with .Home}}
+{{if .Readme}}
+<article class="markdown">{{.Readme}}</article>
+{{else}}
+<h1 class="text-3xl font-semibold tracking-tight sm:text-[34px]">{{$page.Site.Title}}</h1>
+{{with $page.Site.Description}}<p class="mt-3 max-w-[68ch] text-lg text-muted">{{.}}</p>{{end}}
+<p class="mt-3 font-mono text-[13px] text-faint">{{$page.Site.ModulePath}}</p>
+{{end}}
+
+<section class="mt-12">
+  <h2 class="text-xl font-semibold tracking-tight">Packages</h2>
+  <ul class="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line">
+    {{range .Packages}}
+    <li>
+      <a href="{{$page.Root}}{{.URL}}" class="flex flex-col gap-1 px-4 py-3 hover:bg-panel sm:flex-row sm:items-baseline sm:gap-4">
+        <span class="flex shrink-0 items-center gap-2 font-mono text-[14px] font-medium sm:w-48">
+          <span class="truncate">{{.Label}}</span>
+          {{if .IsCommand}}<span class="rounded border border-line px-1 font-sans text-[10px] font-normal text-faint">cmd</span>{{end}}
+        </span>
+        <span class="min-w-0 flex-1 text-sm text-muted">{{if .Synopsis}}{{.Synopsis}}{{else}}<span class="italic text-faint">No package comment</span>{{end}}</span>
+        {{if $page.Site.ShowMissing}}<span class="shrink-0 font-mono text-[12px] tabular-nums {{pctClass .Stats.Percent}}">{{.Stats.Percent}}%</span>{{end}}
+      </a>
+    </li>
+    {{end}}
+  </ul>
+</section>
+{{end}}
+{{end}}

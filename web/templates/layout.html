@@ -1,0 +1,116 @@
+{{define "layout"}}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{if .Title}}{{.Title}} · {{end}}{{.Site.Title}}</title>
+{{with .Site.Description}}<meta name="description" content="{{.}}">{{end}}
+<meta name="generator" content="kansha">
+<script>try{var t=localStorage.getItem("kansha-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="{{.Root}}assets/kansha.css">
+</head>
+<body class="bg-bg text-fg font-sans antialiased" data-root="{{.Root}}">
+
+<header class="topbar sticky top-0 z-30 border-b border-line">
+  <div class="mx-auto max-w-[1440px] px-4 sm:px-6">
+    <div class="flex h-14 items-center gap-3 sm:gap-4">
+      <button type="button" class="lg:hidden -ml-1 rounded-md p-1.5 text-muted hover:text-fg" data-drawer-open aria-label="Open navigation">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h14M3 10h14M3 14h14"/></svg>
+      </button>
+      <a href="{{.Root}}" class="flex min-w-0 items-center gap-2 font-semibold tracking-tight">
+        <span class="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-accent font-mono text-[13px] font-bold text-bg">go</span>
+        <span class="truncate">{{.Site.Title}}</span>
+      </a>
+      <button type="button" class="ml-auto flex items-center gap-2 rounded-lg border border-line bg-panel px-3 py-1.5 text-sm text-faint hover:text-muted md:ml-6 md:w-72" data-search-open aria-label="Search docs">
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="9" r="6"/><path d="m14 14 4 4"/></svg>
+        <span class="hidden md:inline">Search packages, funcs, types…</span>
+        <kbd class="ml-auto hidden rounded border border-line bg-bg px-1.5 font-mono text-[11px] md:inline">⌘K</kbd>
+      </button>
+      <div class="hidden items-center md:ml-auto md:flex">
+        {{with .Site.Repo}}
+        <a href="{{.}}" class="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm text-muted hover:text-fg">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.71 1.22 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+          GitHub
+        </a>
+        {{end}}
+      </div>
+      <button type="button" class="rounded-md p-1.5 text-muted hover:text-fg" data-theme-toggle aria-label="Toggle dark mode">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M16.5 12.5A7 7 0 0 1 7.5 3.5a7 7 0 1 0 9 9Z"/></svg>
+      </button>
+    </div>
+    <nav class="-mb-px flex gap-6 overflow-x-auto text-sm" aria-label="Sections">
+      <a href="{{.Root}}" class="tab {{if eq .Tab "home"}}tab-active{{end}}">Home</a>
+      <a href="{{.Root}}{{.Site.APIURL}}" class="tab {{if eq .Tab "api"}}tab-active{{end}}">API Reference</a>
+      {{if .Site.ShowMissing}}
+      <a href="{{.Root}}coverage/" class="tab {{if eq .Tab "coverage"}}tab-active{{end}}">Coverage
+        {{with .Site.Coverage}}{{if lt .Documented .Total}}<span class="ml-1 rounded-full bg-warnsoft px-1.5 font-mono text-[11px] text-warn">{{.Percent}}%</span>{{end}}{{end}}
+      </a>
+      {{end}}
+    </nav>
+  </div>
+</header>
+
+<div class="mx-auto flex max-w-[1440px] gap-10 px-4 sm:px-6">
+  <aside class="hidden w-64 shrink-0 lg:block">
+    <div class="sidebar sticky overflow-y-auto py-8 pr-2 text-sm">{{template "nav" .}}</div>
+  </aside>
+
+  <main class="min-w-0 flex-1 py-8 lg:py-10">
+    <div class="mx-auto max-w-3xl">
+      {{block "content" .}}{{end}}
+      <p class="mt-12 border-t border-line pt-6 pb-6 text-[12px] text-faint">Generated from source comments by kansha{{with .Site.BuiltAt}} · {{.}}{{end}}</p>
+    </div>
+  </main>
+
+  {{if .TOC}}
+  <aside class="hidden w-56 shrink-0 xl:block">
+    <div class="toc sticky overflow-y-auto py-10 text-sm">
+      <p class="label mb-3">On this page</p>
+      <ul class="space-y-2 border-l border-line">
+        {{range .TOC}}
+        <li><a href="#{{.ID}}" data-toc="{{.ID}}" class="toc-link -ml-px flex items-center gap-2 border-l border-transparent {{if eq .Level 1}}pl-6{{else}}pl-3{{end}} {{if .Mono}}font-mono text-[13px]{{end}} {{if .Faint}}text-faint{{else}}text-muted{{end}}"><span class="truncate">{{.Text}}</span>{{if .Warn}}<span class="h-1.5 w-1.5 shrink-0 rounded-full bg-warn" title="Missing doc comment"></span>{{end}}</a></li>
+        {{end}}
+      </ul>
+      {{if .Site.Dev}}
+      <div class="mt-8 rounded-lg border border-dashed border-line p-3">
+        <p class="flex items-center gap-2 text-[12px] text-muted"><span class="h-2 w-2 rounded-full bg-ok"></span>Live reload on</p>
+        <p class="mt-1 font-mono text-[11px] text-faint">Save a .go file to update this page</p>
+      </div>
+      {{end}}
+    </div>
+  </aside>
+  {{end}}
+</div>
+
+<div class="fixed inset-0 z-40 lg:hidden" data-drawer hidden>
+  <div class="scrim absolute inset-0" data-drawer-close></div>
+  <div class="absolute inset-y-0 left-0 w-72 max-w-[85vw] overflow-y-auto border-r border-line bg-bg p-5 text-sm">{{template "nav" .}}</div>
+</div>
+
+<div class="fixed inset-0 z-50" data-search hidden>
+  <div class="scrim absolute inset-0" data-search-close></div>
+  <div class="relative mx-auto mt-[10vh] w-[min(36rem,calc(100%-2rem))] overflow-hidden rounded-xl border border-line bg-bg shadow-2xl">
+    <div class="flex items-center gap-3 border-b border-line px-4">
+      <svg class="shrink-0 text-faint" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="9" r="6"/><path d="m14 14 4 4"/></svg>
+      <input id="kansha-search" type="search" autocomplete="off" spellcheck="false" placeholder="Search packages, funcs, types…" class="h-12 w-full bg-transparent text-[15px] outline-none placeholder:text-faint">
+      <kbd class="rounded border border-line px-1.5 font-mono text-[11px] text-faint">esc</kbd>
+    </div>
+    <ul class="max-h-[60vh] overflow-y-auto p-2" data-search-results></ul>
+  </div>
+</div>
+
+<script src="{{.Root}}assets/kansha.js" defer></script>
+{{if .Site.Dev}}
+<script>
+(function () {
+  var id = "{{.Site.BuildID}}";
+  var es = new EventSource("/__kansha/events");
+  es.onmessage = function (e) { if (e.data && e.data !== id) location.reload(); };
+})();
+</script>
+{{end}}
+</body>
+</html>{{end}}

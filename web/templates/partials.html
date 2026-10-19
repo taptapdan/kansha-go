@@ -1,0 +1,144 @@
+{{/* Sidebar navigation, used in the desktop sidebar and the mobile drawer. */}}
+{{define "nav"}}
+{{$page := .}}
+<p class="label mb-2">Overview</p>
+<ul class="mb-6 space-y-0.5">
+  <li><a href="{{.Root}}" class="nav-link {{if eq .Tab "home"}}nav-active{{end}}">Home</a></li>
+  {{if .Site.ShowMissing}}<li><a href="{{.Root}}coverage/" class="nav-link {{if eq .Tab "coverage"}}nav-active{{end}}">Doc coverage</a></li>{{end}}
+</ul>
+{{with .Site.Commands}}
+<p class="label mb-2">Commands</p>
+<ul class="mb-6 space-y-0.5">{{range .}}{{template "nav-pkg" (navArgs $page .)}}{{end}}</ul>
+{{end}}
+{{with .Site.Libraries}}
+<p class="label mb-2">Packages</p>
+<ul class="space-y-0.5">{{range .}}{{template "nav-pkg" (navArgs $page .)}}{{end}}</ul>
+{{end}}
+{{end}}
+
+{{define "nav-pkg"}}
+{{$active := eq .Page.URL .Pkg.URL}}
+<li>
+  <a href="{{.Page.Root}}{{.Pkg.URL}}" class="nav-link flex items-center justify-between gap-2 {{if $active}}nav-active{{end}}">
+    <span class="truncate font-mono text-[13px]">{{.Pkg.Label}}</span>
+    {{if .Page.Site.ShowMissing}}
+      {{if ge .Pkg.Stats.Percent 100}}<span class="h-1.5 w-1.5 shrink-0 rounded-full bg-ok" title="Fully documented"></span>
+      {{else}}<span class="shrink-0 font-mono text-[11px] {{pctClass .Pkg.Stats.Percent}}">{{.Pkg.Stats.Percent}}%</span>{{end}}
+    {{end}}
+  </a>
+  {{if and $active .Page.Package}}{{with .Page.Package.Nav}}
+  <ul class="mb-2 ml-3 mt-1 space-y-0.5 border-l border-line pl-3">
+    {{range .}}
+    <li><a href="#{{.ID}}" class="flex items-center gap-2 py-1 text-muted hover:text-fg {{if .Indent}}pl-3{{end}}">
+      <span class="kind kind-{{.Kind}}">{{.Letter}}</span>
+      <span class="truncate font-mono text-[12.5px] {{if .Deprecated}}line-through decoration-faint{{end}}">{{.Name}}</span>
+      {{if .Warn}}<span class="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-warn" title="Missing doc comment"></span>{{end}}
+    </a></li>
+    {{end}}
+  </ul>
+  {{end}}{{end}}
+</li>
+{{end}}
+
+{{/* Source location link shown at the right of every symbol heading. */}}
+{{define "source"}}
+{{if .SourceURL}}<a href="{{.SourceURL}}" class="shrink-0 font-mono text-[12px] text-faint hover:text-accent" title="{{.File}}">{{base .File}}:{{.Line}}</a>
+{{else}}<span class="shrink-0 font-mono text-[12px] text-faint" title="{{.File}}">{{base .File}}:{{.Line}}</span>{{end}}
+{{end}}
+
+{{/* Callout for a missing or unconventional doc comment. Arguments: Symbol-like with Status, File, Code. */}}
+{{define "missing"}}
+{{if eq .Status.Problem "missing"}}
+<div class="callout-warn mt-4 rounded-lg border px-4 py-3.5 text-sm">
+  <div class="flex items-start gap-3">
+    <svg class="mt-0.5 shrink-0 text-warn" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 2 17h16L10 3Z"/><path d="M10 8v4M10 14.5v.5"/></svg>
+    <div class="min-w-0">
+      <p class="font-medium text-warn">{{.Name}} has no doc comment</p>
+      <p class="mt-1 text-muted">Add a comment on the line directly above it in <code class="inline-code">{{.File}}</code>{{if .Line}} (line {{.Line}}){{end}}. By Go convention it starts with the name:</p>
+      <pre class="code mt-2 rounded-md border border-line px-3 py-2"><span class="c1">{{.Status.Suggest}}</span></pre>
+    </div>
+  </div>
+</div>
+{{else if eq .Status.Problem "style"}}
+<p class="mt-3 flex items-start gap-2 text-[13px] text-faint">
+  <svg class="mt-0.5 shrink-0" width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10" cy="10" r="7.5"/><path d="M10 9v5M10 6v.5"/></svg>
+  <span>Tip: Go doc comments start with the name they describe, like <code class="inline-code">{{.Status.Suggest}}</code></span>
+</p>
+{{end}}
+{{end}}
+
+{{define "examples"}}
+{{range .}}
+<details id="{{.ID}}" class="group anchor mt-4 rounded-lg border border-line" open>
+  <summary class="flex cursor-pointer list-none items-center gap-2 px-4 py-2.5 text-sm font-medium">
+    <svg class="shrink-0 text-faint transition-transform group-open:rotate-90" width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M4 2l5 4-5 4z"/></svg>
+    {{.Title}} <span class="truncate font-mono text-[12px] font-normal text-faint">{{.FuncName}} · {{base .File}}</span>
+  </summary>
+  <div class="border-t border-line">
+    {{with .Doc}}<div class="doc px-4 pt-3">{{.}}</div>{{end}}
+    <pre class="code px-4 py-3">{{.Code}}</pre>
+    {{if .HasOutput}}
+    <div class="border-t border-line px-4 py-2.5">
+      <p class="label">{{if .Unordered}}Output (any order){{else}}Output{{end}}</p>
+      <pre class="mt-1 font-mono text-[13px] text-muted">{{.Output}}</pre>
+    </div>
+    {{end}}
+  </div>
+</details>
+{{end}}
+{{end}}
+
+{{/* One documented symbol. */}}
+{{define "symbol"}}
+{{$show := .Page.Site.ShowMissing}}
+{{with .Sym}}
+<article id="{{.ID}}" class="anchor {{if .Children}}mt-5 border-t border-line pt-6{{else}}mt-5 border-t border-line pt-6{{end}}">
+  {{range .ExtraIDs}}<span id="{{.}}" class="anchor"></span>{{end}}
+  <div class="flex flex-wrap items-baseline justify-between gap-2">
+    <h3 class="font-mono text-lg font-medium"><a href="#{{.ID}}" class="hover:underline">{{.Heading}}</a>
+      {{if .Deprecated}}<span class="ml-1 align-middle rounded bg-dangersoft px-1.5 py-0.5 font-sans text-[11px] font-medium text-danger">Deprecated</span>{{end}}
+    </h3>
+    {{template "source" .}}
+  </div>
+  {{with .Doc}}<div class="doc mt-3">{{.}}</div>{{end}}
+  {{if $show}}{{template "missing" .}}{{end}}
+  {{with .Deprecated}}<div class="callout-danger mt-3 rounded-lg border-l-2 px-4 py-2.5 text-sm"><span class="font-medium text-danger">Deprecated:</span> <span class="text-muted">{{.}}</span></div>{{end}}
+  <pre class="code mt-4 rounded-xl border border-line px-4 py-3">{{.Code}}</pre>
+  {{if .Fields}}
+  <div class="mt-4 overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead><tr class="label text-left"><th class="pb-2 pr-4 font-semibold">{{.FieldLabel}}</th><th class="pb-2 pr-4 font-semibold">{{if eq .FieldLabel "Method"}}Signature{{else}}Type{{end}}</th><th class="pb-2 font-semibold">Description</th></tr></thead>
+      <tbody class="divide-y divide-line align-top">
+        {{range .Fields}}
+        <tr>
+          <td class="whitespace-nowrap py-2.5 pr-4 font-mono text-[13px]">{{.Name}}{{if .Embedded}} <span class="font-sans text-[11px] text-faint">embedded</span>{{end}}</td>
+          <td class="py-2.5 pr-4 font-mono text-[13px] text-type">{{.Type}}</td>
+          <td class="doc-inline py-2.5 text-muted">{{if .Doc}}{{.Doc}}{{else}}<span class="italic text-faint">No comment</span>{{end}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    {{if .Hidden}}<p class="mt-2 text-[12px] text-faint">Some {{if eq .FieldLabel "Method"}}methods{{else}}fields{{end}} are unexported and not shown.</p>{{end}}
+  </div>
+  {{end}}
+  {{template "examples" .Examples}}
+
+  {{range .Children}}
+  <div id="{{.ID}}" class="anchor mt-8 border-line sm:ml-4 sm:border-l sm:pl-5">
+    {{range .ExtraIDs}}<span id="{{.}}" class="anchor"></span>{{end}}
+    <div class="flex flex-wrap items-baseline justify-between gap-2">
+      <h4 class="font-mono text-[15px] font-medium"><a href="#{{.ID}}" class="hover:underline">{{.Heading}}</a>
+        {{if .Deprecated}}<span class="ml-1 align-middle rounded bg-dangersoft px-1.5 py-0.5 font-sans text-[11px] font-medium text-danger">Deprecated</span>{{end}}
+      </h4>
+      {{template "source" .}}
+    </div>
+    <pre class="code mt-3 rounded-lg border border-line px-4 py-3">{{.Code}}</pre>
+    {{with .Doc}}<div class="doc mt-3">{{.}}</div>{{end}}
+    {{if $show}}{{template "missing" .}}{{end}}
+    {{with .Deprecated}}<div class="callout-danger mt-3 rounded-lg border-l-2 px-4 py-2.5 text-sm"><span class="font-medium text-danger">Deprecated:</span> <span class="text-muted">{{.}}</span></div>{{end}}
+    {{template "examples" .Examples}}
+  </div>
+  {{end}}
+</article>
+{{end}}
+{{end}}

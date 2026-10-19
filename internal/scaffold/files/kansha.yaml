@@ -1,0 +1,25 @@
+# Settings for kansha, the doc site generator. Every field is optional.
+# https://github.com/taptapdan/kansha-go
+
+# Shown in the top bar and the browser tab.
+title: __TITLE__
+
+# One-line summary for the home page (used when there is no README.md).
+description: ""
+
+# Repository URL for the GitHub link and "view source" links.
+# Detected from the git remote "origin" when left empty.
+repo: "__REPO__"
+
+# Branch that source links point at.
+branch: __BRANCH__
+
+# Folder that `kansha build` writes the site to. The -o flag overrides it.
+output: _site
+
+# Also document unexported (lowercase) identifiers in library packages.
+# They are always shown for package main.
+unexported: false
+
+# Package directories to leave out, relative to this file.
+exclude: []

@@ -1,0 +1,46 @@
+# Builds the docs with kansha and publishes them to GitHub Pages.
+#
+# One-time setup: in the repository on GitHub, open Settings → Pages and set
+# "Source" to "GitHub Actions".
+name: Docs
+
+on:
+  push:
+    branches: [__BRANCH__]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      # kansha reports the folder it wrote to, so this follows the output
+      # setting in kansha.yaml.
+      - name: Build docs
+        id: build
+        run: go tool kansha build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ steps.build.outputs.dir }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
