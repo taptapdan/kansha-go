@@ -53,3 +53,19 @@ func TestLoadOutput(t *testing.T) {
 		t.Errorf("output = %q, want public", cfg.Output)
 	}
 }
+
+func TestShowUnexported(t *testing.T) {
+	for _, yml := range []string{"show_unexported: true\n", "unexported: true\n"} {
+		dir := t.TempDir()
+		if err := os.WriteFile(filepath.Join(dir, FileName), []byte(yml), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		cfg, err := Load(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !cfg.ShowUnexported {
+			t.Errorf("%q: ShowUnexported = false, want true", yml)
+		}
+	}
+}

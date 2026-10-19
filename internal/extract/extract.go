@@ -264,15 +264,25 @@ func (x *extractor) typ(t *doc.Type) *Type {
 	return out
 }
 
-// markHidden replaces the gap that go/doc leaves where unexported fields were
-// removed with the same note go doc prints.
+const filteredNote = "// contains filtered or unexported fields"
+
+// markHidden makes sure a struct or interface with removed unexported fields
+// ends with exactly one "contains filtered or unexported fields" note, right
+// after the last shown field. go/printer sometimes writes the note itself and
+// sometimes only leaves a blank gap, depending on where the fields were.
 func markHidden(code string) string {
 	i := strings.LastIndex(code, "}")
 	if i < 0 {
 		return code
 	}
-	body := strings.TrimRight(code[:i], " \t\n")
-	return body + "\n\t// contains filtered or unexported fields\n" + code[i:]
+	var kept []string
+	for _, line := range strings.Split(code[:i], "\n") {
+		if strings.TrimSpace(line) != filteredNote {
+			kept = append(kept, line)
+		}
+	}
+	body := strings.TrimRight(strings.Join(kept, "\n"), " \t\n")
+	return body + "\n\t" + filteredNote + "\n" + code[i:]
 }
 
 func (x *extractor) fields(list *ast.FieldList, iface bool) []*Field {

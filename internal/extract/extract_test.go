@@ -78,3 +78,47 @@ func TestLoadShop(t *testing.T) {
 		t.Errorf("bugs = %v", inv.Bugs)
 	}
 }
+
+func findType(p *Package, name string) *Type {
+	for _, ty := range p.Types {
+		if ty.Name == name {
+			return ty
+		}
+	}
+	return nil
+}
+
+func TestHiddenFieldsNote(t *testing.T) {
+	m, err := Load(Options{Dir: "../../testdata/shop"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	inv := m.Packages[1]
+	for _, name := range []string{"Item", "Shelf"} {
+		ty := findType(inv, name)
+		if n := strings.Count(ty.Code, filteredNote); n != 1 {
+			t.Errorf("%s: note appears %d times, want 1:\n%s", name, n, ty.Code)
+		}
+		if strings.Contains(ty.Code, "\n\n\t"+filteredNote) {
+			t.Errorf("%s: blank line before the note:\n%s", name, ty.Code)
+		}
+	}
+}
+
+func TestShowUnexported(t *testing.T) {
+	m, err := Load(Options{Dir: "../../testdata/shop", Unexported: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	shelf := findType(m.Packages[1], "Shelf")
+	if shelf.Hidden || strings.Contains(shelf.Code, filteredNote) {
+		t.Errorf("unexported fields still hidden:\n%s", shelf.Code)
+	}
+	var names []string
+	for _, f := range shelf.Fields {
+		names = append(names, f.Name)
+	}
+	if got := strings.Join(names, ","); got != "id,Label,items" {
+		t.Errorf("fields = %s, want id,Label,items", got)
+	}
+}

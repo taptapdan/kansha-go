@@ -17,9 +17,10 @@ branch: __BRANCH__
 # Folder that `kansha build` writes the site to. The -o flag overrides it.
 output: _site
 
-# Also document unexported (lowercase) identifiers in library packages.
-# They are always shown for package main.
-unexported: false
+# Also document unexported (lowercase) identifiers in library packages:
+# functions, methods, types, consts, vars and struct fields. Handy when the
+# docs are for the people working on the code. Always on for package main.
+show_unexported: false
 
 # Show a copyable "go install ...@latest" command on the pages of commands
 # (package main). Turn on for tools you want other people to install.

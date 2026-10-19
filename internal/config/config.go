@@ -44,9 +44,14 @@ type Config struct {
 	// Branch is the branch that source links point at. Defaults to "main".
 	Branch string `yaml:"branch"`
 
-	// Unexported shows unexported (lowercase) identifiers in library packages
-	// too. They are always shown for package main, since a command has no
-	// exported API.
+	// ShowUnexported shows unexported (lowercase) identifiers in library
+	// packages too: functions, methods, types, consts, vars and struct fields. Useful when the docs are for the people working on the code.
+	// They are always shown for package main, since a command has no exported
+	// API.
+	ShowUnexported bool `yaml:"show_unexported"`
+
+	// Unexported is the old name for ShowUnexported, still read so existing
+	// kansha.yaml files keep working.
 	Unexported bool `yaml:"unexported"`
 
 	// ShowInstall shows a copyable "go install module@latest" command at the
@@ -88,6 +93,9 @@ func Load(dir string) (*Config, error) {
 	}
 	if cfg.Output == "" {
 		cfg.Output = DefaultOutput
+	}
+	if cfg.Unexported {
+		cfg.ShowUnexported = true
 	}
 	return cfg, nil
 }

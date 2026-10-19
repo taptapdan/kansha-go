@@ -53,7 +53,7 @@ func Build(opts Options, r *render.Renderer, out Output) (*Result, error) {
 	}
 	mod, err := extract.Load(extract.Options{
 		Dir:        opts.Dir,
-		Unexported: cfg.Unexported,
+		Unexported: cfg.ShowUnexported,
 		Exclude:    cfg.Excluded,
 	})
 	if err != nil {

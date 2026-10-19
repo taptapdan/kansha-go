@@ -68,3 +68,11 @@ var (
 	Currency        = "USD"
 	Locale          = "en-US"
 )
+
+// Shelf is one shelf in the shop. Its unexported fields come before and after
+// the exported one, which is the case that used to print the note twice.
+type Shelf struct {
+	id    int
+	Label string // Shown on the shelf edge.
+	items []*Item
+}

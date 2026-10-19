@@ -148,7 +148,7 @@ func check(args []string) error {
 	if err != nil {
 		return err
 	}
-	mod, err := extract.Load(extract.Options{Dir: *dir, Unexported: cfg.Unexported, Exclude: cfg.Excluded})
+	mod, err := extract.Load(extract.Options{Dir: *dir, Unexported: cfg.ShowUnexported, Exclude: cfg.Excluded})
 	if err != nil {
 		return err
 	}

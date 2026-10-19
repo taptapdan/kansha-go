@@ -130,7 +130,7 @@
         {{end}}
       </tbody>
     </table>
-    {{if .Hidden}}<p class="mt-2 text-[12px] text-faint">Some {{if eq .FieldLabel "Method"}}methods{{else}}fields{{end}} are unexported and not shown.</p>{{end}}
+    {{if .Hidden}}<p class="mt-2 text-[12px] text-faint">Some {{if eq .FieldLabel "Method"}}methods{{else}}fields{{end}} are unexported and not shown. Set <code class="inline-code">show_unexported: true</code> in kansha.yaml to show them.</p>{{end}}
   </div>
   {{end}}
   {{template "examples" .Examples}}

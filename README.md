@@ -114,8 +114,10 @@ By Go convention a comment starts with the name it describes, e.g.
 
 Library packages show exported identifiers (names that start with a capital
 letter). Commands (`package main`) show everything, since they have no exported
-API. Set `unexported: true` in `kansha.yaml` to show unexported identifiers in
-library packages too.
+API. Set `show_unexported: true` in `kansha.yaml` to show unexported (lowercase)
+identifiers in library packages too, including unexported struct fields. That's
+useful when the docs are mainly for the people working on the code. Unexported
+identifiers then also count toward coverage.
 
 ## Configuration
 
@@ -127,7 +129,7 @@ description: Notes from learning Go               # shown on the home page when 
 repo: https://github.com/taptapdan/go-tutorial    # defaults to the "origin" remote
 branch: main                                      # branch for source links
 output: _site                                     # where kansha build writes the site
-unexported: false                                 # show unexported identifiers in library packages
+show_unexported: false                            # show unexported (lowercase) identifiers in library packages
 show_install: false                               # show "go install ...@latest" on command pages
 exclude: [internal/scratch]                       # package directories to skip
 ```
