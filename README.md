@@ -128,6 +128,7 @@ repo: https://github.com/taptapdan/go-tutorial    # defaults to the "origin" rem
 branch: main                                      # branch for source links
 output: _site                                     # where kansha build writes the site
 unexported: false                                 # show unexported identifiers in library packages
+show_install: false                               # show "go install ...@latest" on command pages
 exclude: [internal/scratch]                       # package directories to skip
 ```
 

@@ -21,5 +21,9 @@ output: _site
 # They are always shown for package main.
 unexported: false
 
+# Show a copyable "go install ...@latest" command on the pages of commands
+# (package main). Turn on for tools you want other people to install.
+show_install: false
+
 # Package directories to leave out, relative to this file.
 exclude: []

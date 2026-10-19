@@ -70,6 +70,7 @@ func Build(opts Options, r *render.Renderer, out Output) (*Result, error) {
 		Branch:      cfg.Branch,
 		Dev:         opts.Dev,
 		ShowMissing: opts.ShowMissing,
+		ShowInstall: cfg.ShowInstall,
 		BuildID:     strconv.FormatInt(now.UnixNano(), 36),
 		Coverage:    report.Stats,
 	}

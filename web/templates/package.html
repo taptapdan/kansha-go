@@ -11,15 +11,20 @@
 </h1>
 
 <div class="mt-4 flex flex-wrap items-center gap-2">
+  {{if .IsCommand}}
+  {{if $page.Site.ShowInstall}}
+  <span class="text-[12px] font-medium text-muted" title="Builds the program and puts it in ~/go/bin">Install this command</span>
   <div class="flex min-w-0 max-w-full items-center gap-2 rounded-lg border border-line bg-code py-1 pl-3 pr-1 font-mono text-[13px]">
-    {{if .IsCommand}}
     <span class="text-faint">go install</span><span class="truncate">{{.ImportPath}}@latest</span>
     <button type="button" class="shrink-0 rounded-md px-2 py-1 text-[12px] text-muted hover:bg-panel hover:text-fg" data-copy="go install {{.ImportPath}}@latest">Copy</button>
-    {{else}}
+  </div>
+  {{end}}
+  {{else}}
+  <div class="flex min-w-0 max-w-full items-center gap-2 rounded-lg border border-line bg-code py-1 pl-3 pr-1 font-mono text-[13px]">
     <span class="text-faint">import</span><span class="truncate">"{{.ImportPath}}"</span>
     <button type="button" class="shrink-0 rounded-md px-2 py-1 text-[12px] text-muted hover:bg-panel hover:text-fg" data-copy='import "{{.ImportPath}}"'>Copy</button>
-    {{end}}
   </div>
+  {{end}}
   <span class="rounded-full border border-line px-2.5 py-1 text-[12px] text-muted">{{plural .Files "file" "files"}} · {{plural .Lines "line" "lines"}}</span>
   {{if and .Unexported (not .IsCommand)}}<span class="rounded-full border border-line px-2.5 py-1 text-[12px] text-muted">Showing unexported</span>{{end}}
 </div>

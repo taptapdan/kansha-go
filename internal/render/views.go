@@ -15,6 +15,7 @@ type Site struct {
 	Branch      string
 	Dev         bool // served by kansha serve: adds live reload
 	ShowMissing bool // show missing-doc callouts, coverage dots and the Coverage tab
+	ShowInstall bool // show the "go install" command on command pages
 	BuildID     string
 	BuiltAt     string
 	APIURL      string // first package page, linked from the API Reference tab

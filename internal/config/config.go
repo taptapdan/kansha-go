@@ -49,6 +49,12 @@ type Config struct {
 	// exported API.
 	Unexported bool `yaml:"unexported"`
 
+	// ShowInstall shows a copyable "go install module@latest" command at the
+	// top of each command's page (package main). Off by default, since it only
+	// works once the module is published and is meant for tools other people
+	// will install.
+	ShowInstall bool `yaml:"show_install"`
+
 	// Output is the folder kansha build writes the site to, relative to the
 	// module root. Defaults to "_site". The -o flag overrides it.
 	Output string `yaml:"output"`

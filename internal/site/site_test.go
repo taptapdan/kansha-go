@@ -58,6 +58,9 @@ func TestBuildHidesMissingByDefault(t *testing.T) {
 	if _, err := Build(Options{Dir: "../../testdata/shop"}, r, out); err != nil {
 		t.Fatal(err)
 	}
+	if cmd, _ := out.Get("api/cmd/shopctl/index.html"); strings.Contains(string(cmd), "go install") {
+		t.Error("command page shows go install although show_install is off")
+	}
 	page, _ := out.Get("api/inventory/index.html")
 	if strings.Contains(string(page), "has no doc comment") {
 		t.Error("published build shows missing-doc callouts")
