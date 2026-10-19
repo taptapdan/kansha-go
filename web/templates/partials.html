@@ -54,7 +54,7 @@
     <svg class="mt-0.5 shrink-0 text-warn" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 2 17h16L10 3Z"/><path d="M10 8v4M10 14.5v.5"/></svg>
     <div class="min-w-0">
       {{if .Status.Group}}
-      <p class="font-medium text-warn">{{if eq (len .Status.Undocumented) .Status.GroupSize}}This {{.Kind}} group has no doc comment{{else}}{{len .Status.Undocumented}} of {{.Status.GroupSize}} names in this {{.Kind}} group have no comment{{end}}</p>
+      <p class="font-medium text-warn">{{if eq (len .Status.Undocumented) .Status.GroupSize}}This {{.Kind}} group has no doc comment{{else}}{{len .Status.Undocumented}} of {{.Status.GroupSize}} names in this {{.Kind}} group {{if eq (len .Status.Undocumented) 1}}has{{else}}have{{end}} no comment{{end}}</p>
       <p class="mt-1 text-muted">Missing: {{range $i, $n := .Status.Undocumented}}{{if $i}}, {{end}}<code class="inline-code">{{$n}}</code>{{end}}.</p>
       <p class="mt-1 text-muted">Either add one comment above <code class="inline-code">{{.Kind}} (</code> in <code class="inline-code">{{.File}}</code>{{if .Line}} (line {{.Line}}){{end}} that describes the whole group, or give each name its own comment.</p>
       <pre class="code mt-2 rounded-md border border-line px-3 py-2"><span class="c1">{{.Status.Suggest}}</span>
@@ -70,7 +70,11 @@
 {{else if eq .Status.Problem "style"}}
 <p class="mt-3 flex items-start gap-2 text-[13px] text-faint">
   <svg class="mt-0.5 shrink-0" width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10" cy="10" r="7.5"/><path d="M10 9v5M10 6v.5"/></svg>
+  {{if .Status.Group}}
+  <span>Tip: {{range $i, $n := .Status.Undocumented}}{{if $i}}, {{end}}<code class="inline-code">{{$n}}</code>{{end}} {{if eq (len .Status.Undocumented) 1}}has{{else}}have{{end}} no comment of {{if eq (len .Status.Undocumented) 1}}its{{else}}their{{end}} own. The comment above <code class="inline-code">{{.Kind}} (</code> covers {{if eq (len .Status.Undocumented) 1}}it{{else}}them{{end}}, but a short comment on each line says what each one is for.</span>
+  {{else}}
   <span>Tip: Go doc comments start with the name they describe, like <code class="inline-code">{{.Status.Suggest}}</code></span>
+  {{end}}
 </p>
 {{end}}
 {{end}}

@@ -170,4 +170,5 @@ type CoverageItem struct {
 	Problem  string
 	Message  string
 	Suggest  string
+	Detail   string // for group tips: which names have no comment of their own
 }

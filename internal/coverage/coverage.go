@@ -93,6 +93,10 @@ func Analyze(m *extract.Module) *Report {
 			} else {
 				st.Hints++
 				it.Message = fmt.Sprintf("comment for %s should start with %q", name, strings.TrimPrefix(s.Suggest, "// "))
+				if s.Group {
+					it.Message = fmt.Sprintf("%s group: %s (the group comment covers %s)",
+						kind, OwnCommentDetail(s.Undocumented), themIt(len(s.Undocumented)))
+				}
 				hints = append(hints, it)
 			}
 		}
@@ -156,11 +160,19 @@ func CheckPackage(p *extract.Package) Status {
 
 // CheckValue checks a const or var declaration. It is documented if it has a
 // comment above it (for a group, above "const (") or if every name in it has
-// a comment of its own, above its line or at the end of it. There is no naming
-// convention for these, so there are no style tips.
+// a comment of its own, above its line or at the end of it.
+//
+// A group with a comment above it but some names without their own comment is
+// documented by Go's rules, so it only gets a tip listing those names.
 func CheckValue(v *extract.Value) Status {
-	if strings.TrimSpace(v.Doc) != "" || len(v.Undocumented) == 0 {
+	if len(v.Undocumented) == 0 {
 		return Status{}
+	}
+	if strings.TrimSpace(v.Doc) != "" {
+		if len(v.Names) == 1 {
+			return Status{}
+		}
+		return Status{Problem: Style, Group: true, Undocumented: v.Undocumented, GroupSize: len(v.Names)}
 	}
 	s := Status{Problem: Missing, Suggest: "// " + v.Names[0] + " ..."}
 	if len(v.Names) > 1 {
@@ -216,4 +228,20 @@ func hasHave(n int) string {
 		return "has"
 	}
 	return "have"
+}
+
+// OwnCommentDetail says which names in a group have no comment of their own,
+// e.g. "TownX, TownZ have no comment of their own".
+func OwnCommentDetail(names []string) string {
+	if len(names) == 1 {
+		return names[0] + " has no comment of its own"
+	}
+	return strings.Join(names, ", ") + " have no comment of their own"
+}
+
+func themIt(n int) string {
+	if n == 1 {
+		return "it"
+	}
+	return "them"
 }

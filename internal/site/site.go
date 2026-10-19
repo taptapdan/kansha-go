@@ -187,6 +187,7 @@ func Build(opts Options, r *render.Renderer, out Output) (*Result, error) {
 					Problem:  it.Status.Problem,
 					Message:  it.Message,
 					Suggest:  it.Status.Suggest,
+					Detail:   groupDetail(it.Status),
 				})
 			}
 			cov.Coverage.Packages = append(cov.Coverage.Packages, cp)
@@ -271,4 +272,13 @@ func searchEntries(v *render.PackageView) []searchEntry {
 		}
 	}
 	return out
+}
+
+// groupDetail describes a group tip for the Coverage tab, e.g.
+// "TownX, TownZ have no comment of their own".
+func groupDetail(s coverage.Status) string {
+	if !s.Group || s.Problem != coverage.Style {
+		return ""
+	}
+	return coverage.OwnCommentDetail(s.Undocumented)
 }
